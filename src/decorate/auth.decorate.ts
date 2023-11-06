@@ -11,3 +11,8 @@ export async function isSigned({ bearer, jwt, set }: any) {
     return "token not valid";
   }
 }
+
+export async function hasPermission({ bearer, jwt, set }: any) {
+  set.status = 403;
+  return "Forbidden";
+}

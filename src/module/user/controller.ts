@@ -1,4 +1,4 @@
-import Elysia, { t } from "elysia";
+import Elysia, { Context, t } from "elysia";
 import { signDTO } from "./user.dto";
 import ctx from "../../context";
 
