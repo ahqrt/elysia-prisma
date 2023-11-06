@@ -1,4 +1,4 @@
-import Elysia, { Context, t } from "elysia";
+import Elysia, { t } from "elysia";
 import { signDTO } from "./user.dto";
 import ctx from "../../context";
 
@@ -30,9 +30,7 @@ export const userController = new Elysia({ prefix: "/user", name: "user" })
   })
   .post("/sign-in", async ({ body, jwt, store: { db } }) => {
     const user = await db.user.findUnique({
-      where: {
-        username: body.username,
-      },
+      where: { username: body.username },
     });
 
     if (!user) {
@@ -60,4 +58,40 @@ export const userController = new Elysia({ prefix: "/user", name: "user" })
     };
   }, {
     body: signDTO,
+  })
+  .get("/list", async ({ store: { db } }) => {
+    // 查询所有用户
+    return db.user.findMany({
+      select: {
+        id: true,
+        username: true,
+      },
+    });
+  })
+  .get("/posts/:id/:page/:limit", async ({ params, store: { db } }) => {
+    // 查询某个用户的所有文章
+    const { id, page, limit } = params;
+    // 查询该用户id下的文章总数
+    const total = await db.post.count({
+      where: {
+        authorId: id,
+      },
+    });
+    const posts = await db.post.findMany({
+      where: {
+        authorId: id,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return {
+      total,
+      posts,
+    };
+  }, {
+    params: t.Object({
+      id: t.Numeric(),
+      page: t.Numeric(),
+      limit: t.Numeric(),
+    }),
   });
