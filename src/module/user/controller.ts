@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 import { signDTO } from "./user.dto";
 import ctx from "../../context";
+import { isSigned } from "../../decorate/auth.decorate";
 
 export const userController = new Elysia({ prefix: "/user", name: "user" })
   .use(ctx)
@@ -67,6 +68,10 @@ export const userController = new Elysia({ prefix: "/user", name: "user" })
         username: true,
       },
     });
+  }, {
+    beforeHandle(context) {
+      return isSigned(context);
+    },
   })
   .get("/posts/:id/:page/:limit", async ({ params, store: { db } }) => {
     // 查询某个用户的所有文章
@@ -94,4 +99,7 @@ export const userController = new Elysia({ prefix: "/user", name: "user" })
       page: t.Numeric(),
       limit: t.Numeric(),
     }),
+    beforeHandle(context) {
+      return isSigned(context);
+    },
   });
