@@ -35,6 +35,33 @@ const app = new Elysia()
       username: t.String(),
     }),
   })
+  .post("sign-in", async ({ body }) => {
+    const user = await db.user.findUnique({
+      where: {
+        username: body.username,
+      },
+    });
+
+    if (!user) {
+      return {
+        code: 404,
+        error: "User not found",
+      };
+    }
+
+    if (user.password !== body.password) {
+      return {
+        code: 401,
+        error: "Password is incorrect",
+      };
+    }
+
+    return {
+      token: "1234",
+    };
+  }, {
+    body: signDTO,
+  })
   .listen(3000);
 
 console.log(
